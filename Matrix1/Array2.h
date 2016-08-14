@@ -5,20 +5,23 @@ namespace Move {
 	class Array
 	{
 
-	public:
+	protected:
 		friend Array operator+(Array lhs, const Array& rhs);
 		friend Array operator+(Array lhs, const ValueType rhs);
-		friend Array operator+(const ValueType rhs, Array lhs);
+		friend Array operator+(const ValueType lhs, Array rhs);
 		friend Array operator*(Array lhs, const Array& rhs);
 
+
+	public:
+
 		// constructor
-		Array(int _length);
+		Array(int length);
 		Array(ValueType* data, int length);
 
-		// copy constructor
+		// constructor (copy)
 		Array(const Array & o);
 
-		// move constructor
+		// constructor (move)
 		Array(Array && o);
 
 		// destructor
@@ -26,7 +29,6 @@ namespace Move {
 
 		// assigment operation (copy)
 		Array & operator = (Array & o);
-
 
 		//  assigment operation (move)
 		Array & operator = (Array && o);
