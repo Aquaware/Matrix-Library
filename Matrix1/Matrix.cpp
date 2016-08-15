@@ -167,6 +167,20 @@ namespace Move {
 		return (*this);
 	}
 
+	Matrix Matrix::product(const Matrix& rhs) {
+		Matrix out(this->rows, rhs.cols);
+		for (int r = 0; r < this->rows; r++) {
+			for (int c = 0; c < this->cols; c++) {
+				ValueType sum = 0.0;
+				for (int k = 0; k < this->cols; k++) {
+					sum += this->vectors[r][k] * rhs.vectors[k] [c];
+				}
+				out.vectors[r][c] = sum;
+			}
+		}
+		return out;
+	}
+
 	void Matrix::deleteDataAndVectors() {
 		delete this->vectors;
 		this->vectors = nullptr;
@@ -195,7 +209,7 @@ namespace Move {
 	// -----
 
 	void Matrix::print() {
-		for (int r = 0; r < this->rows - 1; r++) {
+		for (int r = 0; r < this->rows; r++) {
 			for (int c = 0; c < this->cols - 1; c++) {
 				std::cout << this->vectors[r][c] << ", ";
 			}

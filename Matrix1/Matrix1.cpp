@@ -12,10 +12,12 @@ using namespace Move;
 void test1();
 void test2();
 void test3();
+void test4();
 Vector Func(Vector vector);
 
 int main()
 {
+	test4();
 	test3();
     return 0;
 }
@@ -70,4 +72,22 @@ void test3() {
 	s.print();
 	t.print();
 	u.print();
+}
+
+void test4() {
+	double da[] = { 1, 2, 3, 4,
+								10, 20, 30, 40,
+								-1, -2, -3, -4};
+	double db[] = { 0, 1, 0,
+								1, 1, 0,
+								-1, 0, -1,
+								-10, -100, -1000};
+
+	double dc[] = { -10, 10, 0, 10, 1000 };
+
+	Matrix a(da, 3, 4);
+	Matrix b(db, 4, 3);
+	
+	Matrix p = b.product(a);
+	p.print();
 }

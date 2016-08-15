@@ -2,7 +2,6 @@
 #include "Vector.h"
 
 namespace Move {
-	//typedef double ValueType;
 	class Matrix {
 
 	public:
@@ -46,6 +45,7 @@ namespace Move {
 		int rowSize() { return this->rows; };
 		ValueType* array() { return this->data; };
 		ValueType** arrays() { return this->vectors; };
+		Matrix product(const Matrix& rhs);
 
 		void print();
 
