@@ -1,53 +1,205 @@
-#include "Matrix.h"
+#include <iostream>
 #include <cassert>
+#include "Matrix.h"
 
+using namespace std;
 
+namespace Move {
 
-Matrix::Matrix()
-{
-}
-
-Matrix::Matrix(const int rows, const int cols) {
-	this->rows = rows;
-	this->cols = cols;
-	this->array = new double[rows * cols];
-}
-
-Matrix::Matrix(const double* data, const int rows, const int cols) {
-	this->rows = rows;
-	this->cols = cols;
-	this->array = new double[rows * cols];
-	for (int i = 0; i < rows * cols; i++) {
-		array[i] = data[i];
-	}
-}
-
-Matrix& Matrix:: operator=(const Matrix& other) // copy assignment
-{
-	if (this != &other) { // self-assignment check expected
-		if (true) {
-			/* storage cannot be reused (e.g. different sizes) */
-		
-			delete[] array;            // destroy storage in this
-										/* reset size to zero and mArray to null, in case allocation throws */
-			array = new double[this->rows * this->cols]; // create storage in this
+	Matrix operator+(Matrix lhs, const Matrix& rhs) {
+		for (int i = 0; i < lhs.length; i++) {
+			lhs.data[i] += rhs.data[i];
 		}
-		/* copy data from other's storage to this storage */
-		for (int i = 0; i < rows * cols; i++) {
-			this->array[i] = other.array[i];
+		return lhs;
+	}
+
+	Matrix operator+(Matrix lhs, const ValueType rhs) {
+		for (int i = 0; i < lhs.length; i++) {
+			lhs.data[i] += rhs;
+		}
+		return lhs;
+	}
+
+	Matrix operator+(const ValueType lhs, Matrix rhs) {
+		for (int i = 0; i < rhs.length; i++) {
+			rhs.data[i] += lhs;
+		}
+		return rhs;
+	}
+
+	Matrix operator-(Matrix lhs, const Matrix& rhs) {
+		for (int i = 0; i < lhs.length; i++) {
+			lhs.data[i] -= rhs.data[i];
+		}
+		return lhs;
+	}
+
+	Matrix operator-(Matrix lhs, const ValueType rhs) {
+		for (int i = 0; i < lhs.length; i++) {
+			lhs.data[i] -= rhs;
+		}
+		return lhs;
+	}
+
+	Matrix operator-(const ValueType lhs, Matrix rhs) {
+		for (int i = 0; i < rhs.length; i++) {
+			rhs.data[i] -= lhs;
+		}
+		return rhs;
+	}
+
+	Matrix operator*(Matrix lhs, const Matrix& rhs) {
+		for (int i = 0; i < lhs.length; i++) {
+			lhs.data[i] *= rhs.data[i];
+		}
+		return lhs;
+	}
+
+	Matrix operator*(Matrix lhs, const ValueType rhs) {
+		for (int i = 0; i < lhs.length; i++) {
+			lhs.data[i] *= rhs;
+		}
+		return lhs;
+	}
+
+	Matrix operator*(const ValueType lhs, Matrix rhs) {
+		for (int i = 0; i < rhs.length; i++) {
+			rhs.data[i] *= lhs;
+		}
+		return rhs;
+	}
+
+	Matrix operator/(Matrix lhs, const Matrix& rhs) {
+		for (int i = 0; i < lhs.length; i++) {
+			lhs.data[i] /= rhs.data[i];
+		}
+		return lhs;
+	}
+
+	Matrix operator/(Matrix lhs, const ValueType rhs) {
+		for (int i = 0; i < lhs.length; i++) {
+			lhs.data[i] /= rhs;
+		}
+		return lhs;
+	}
+
+	Matrix operator/(const ValueType lhs, Matrix rhs) {
+		for (int i = 0; i < rhs.length; i++) {
+			rhs.data[i] /= lhs;
+		}
+		return rhs;
+	}
+
+	// -----
+
+	Matrix::Matrix(int rows, int cols) {
+		assert(rows > 0 && cols > 0);
+		this->rows = rows;
+		this->cols = cols;
+		create();
+		memset(data, 0, sizeof(ValueType) * this->length);
+		cout << "generated(" << this << ")" << endl;
+	}
+
+	Matrix::Matrix(ValueType* data, int rows, int cols) {
+		assert(rows > 0 && cols > 0);
+		this->rows = rows;
+		this->cols = cols;
+		create();
+		memcpy(data, data, length * sizeof(ValueType));
+		cout << "generated(" << this << ")" << endl;
+	}
+
+	// constructor (copy)
+	Matrix::Matrix(const Matrix& o) {
+		this->rows = o.rows;
+		this->cols = o.cols;
+		create();
+		memcpy(data, o.data, sizeof(ValueType) * this->length);
+		cout << "copied(" << this << ")" << " <- " << &o << endl;
+	}
+
+	// constructor (move)
+	Matrix::Matrix(Matrix&& o) {
+		this->rows = o.rows;
+		this->cols = o.cols;
+		this->length = o.length;
+		this->data = o.data;
+		o.data = nullptr;
+		o.length = 0;
+		this->vectors = o.vectors;
+		o.vectors = nullptr;
+		cout << "moved(" << this << ")" << " <- " << &o << endl;
+	}
+
+	Matrix::~Matrix() {
+		if (this->data != nullptr) {
+			deleteDataAndVectors();
+		}
+		cout << "deleted(" << this << ")" << endl;
+	}
+
+	// assigment operation (copy)
+	Matrix& Matrix::operator = (Matrix& o) {
+		this->rows = o.rows;
+		this->cols = o.cols;
+		this->length = o.length;
+		memcpy(this->data, o.data, sizeof(ValueType) * this->length);
+		delete this->vectors;
+		createVectors();
+		cout << "copied by '=' (" << this << ")" << " <- " << &o << endl;
+		return (*this);
+	}
+
+	//  assigment operation (move)
+	Matrix& Matrix::operator = (Matrix&& o) {
+		if (this != &o) {
+			this->rows = o.rows;
+			this->cols = o.cols;
+			this->length = o.length;
+			this->data = o.data;
+			o.data = nullptr;
+			o.length = 0;
+			this->vectors = o.vectors;
+			o.vectors = nullptr;
+			cout << "moved by '=' operator (" << this << ")" << " <- " << &o << endl;
+		}
+		return (*this);
+	}
+
+	void Matrix::deleteDataAndVectors() {
+		delete this->vectors;
+		this->vectors = nullptr;
+		delete this->data;
+		this->data = nullptr;
+		this->rows = 0;
+		this->cols = 0;
+		this->length = 0;
+	}
+
+	void Matrix::create() {
+		this->length = this->rows * this->cols;
+		this->data = new ValueType[this->length];
+		createVectors();
+	}
+
+	void Matrix::createVectors() {
+		this->vectors = new ValueType*[this->rows];
+		ValueType* p = this->data;
+		for (int i = 0; i < this->rows; i++) {
+			this->vectors[i] = p;
+			p += this->cols;
 		}
 	}
-	return *this;
-}
-Matrix& Matrix:: operator=(Matrix&& other) // move assignment
-{
-	assert(this != &other); // self-assignment check not required
-	delete[] array;        // delete this storage
-	array = std::exchange(other.array, nullptr); // leave moved-from in valid state
-	return *this;
-}
 
-Matrix::~Matrix()
-{
-	delete[] array;
+	// -----
+
+	void Matrix::print() {
+		for (int r = 0; r < this->rows - 1; r++) {
+			for (int c = 0; c < this->cols - 1; c++) {
+				std::cout << this->vectors[r][c] << ", ";
+			}
+			std::cout << this->vectors[r][this->cols - 1]  << endl;
+		}
+	}
 }

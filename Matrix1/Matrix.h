@@ -1,48 +1,61 @@
 #pragma once
-#include <memory>
 
-class Matrix
-{
-public:
-	Matrix();
-	Matrix(const int rows, const int cols);
-	Matrix(const double* data, const int rows, const int cols);
-	Matrix& operator=(const Matrix& other);
-	Matrix& operator=(Matrix&& other);
+namespace Move {
+	typedef double ValueType;
+	class Matrix {
 
-	// friends defined inside class body are inline and are hidden from non-ADL lookup
-//	friend Matrix operator+(Matrix lhs,        // passing lhs by value helps optimize chained a+b+c
-//		const Matrix& rhs) // otherwise, both parameters may be const references
-//	{
-//		lhs += rhs; // reuse compound assignment
-//		for (int i = 0; i < lhs.rows * lhs.cols; i++) {
-//			lhs.array[i] = rhs.array[i];
-//		}
+	public:
+		// constructor
+		Matrix(int rows, int cols);
+		Matrix(ValueType* data, int rows, int cols);
 
+		// constructor (copy)
+		Matrix(const Matrix& o);
 
-//		return lhs; // return the result by value (uses move constructor)
-//	}
+		// constructor (move)
+		Matrix(Matrix && o);
 
-///
-//	Matrix& operator+=(const Matrix& rhs) // compound assignment (does not need to be a member,
-//	{                           // but often is, to modify the private members)
-								// addition of rhs to *this takes place here 
-
-
-//		return *this; // return the result by reference
-//	}
-
-
-
+		// destructor
 		~Matrix();
 
+		// assigment operation (copy)
+		Matrix& operator = (Matrix& o);
 
+		//  assigment operation (move)
+		Matrix& operator = (Matrix&& o);
 
+	protected:
+		// operators oveload
+		friend Matrix operator+(Matrix lhs, const Matrix& rhs);
+		friend Matrix operator+(Matrix lhs, const ValueType rhs);
+		friend Matrix operator+(const ValueType lhs, Matrix rhs);
+		friend Matrix operator-(Matrix lhs, const Matrix& rhs);
+		friend Matrix operator-(Matrix lhs, const ValueType rhs);
+		friend Matrix operator-(const ValueType lhs, Matrix rhs);
+		friend Matrix operator*(Matrix lhs, const Matrix& rhs);
+		friend Matrix operator*(Matrix lhs, const ValueType rhs);
+		friend Matrix operator*(const ValueType lhs, Matrix rhs);
+		friend Matrix operator/(Matrix lhs, const Matrix& rhs);
+		friend Matrix operator/(Matrix lhs, const ValueType rhs);
+		friend Matrix operator/(const ValueType lhs, Matrix rhs);
 
-	int cols;
-	int rows;
-	double* array;
+	public:
+		int size() { return this->length; };
+		int colSize() { return this->cols; };
+		int rowSize() { return this->rows; };
+		ValueType* array() { return this->data; };
 
+		void print();
 
-};
+	private:
+		int cols;
+		int rows;
+		int length;
+		ValueType* data;
+		ValueType** vectors;
 
+		void create();
+		void createVectors();
+		void deleteDataAndVectors();
+	};
+}

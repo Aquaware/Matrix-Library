@@ -6,11 +6,11 @@ namespace Move {
 
 	public:
 		// constructor
-		Vector(int length);
-		Vector(ValueType* data, int length);
+		Vector(int length, bool isRowVector = true);
+		Vector(ValueType* data, int length, bool isRowVector = true);
 
 		// constructor (copy)
-		Vector(const Vector & o);
+		Vector(const Vector& o);
 
 		// constructor (move)
 		Vector(Vector && o);
@@ -19,12 +19,13 @@ namespace Move {
 		~Vector();
 
 		// assigment operation (copy)
-		Vector& operator = (Vector & o);
+		Vector& operator = (Vector& o);
 
 		//  assigment operation (move)
-		Vector& operator = (Vector && o);
+		Vector& operator = (Vector&& o);
 
 	protected:
+		// operators oveload
 		friend Vector operator+(Vector lhs, const Vector& rhs);
 		friend Vector operator+(Vector lhs, const ValueType rhs);
 		friend Vector operator+(const ValueType lhs, Vector rhs);
@@ -45,7 +46,8 @@ namespace Move {
 		void print();
 
 	private:
-		ValueType *data;
 		int length;
+		bool isRow;
+		ValueType *data;
 	};
 }
