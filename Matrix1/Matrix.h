@@ -1,7 +1,8 @@
 #pragma once
+#include "Vector.h"
 
 namespace Move {
-	typedef double ValueType;
+	//typedef double ValueType;
 	class Matrix {
 
 	public:
@@ -44,6 +45,7 @@ namespace Move {
 		int colSize() { return this->cols; };
 		int rowSize() { return this->rows; };
 		ValueType* array() { return this->data; };
+		ValueType** arrays() { return this->vectors; };
 
 		void print();
 
